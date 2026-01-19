@@ -25,7 +25,7 @@ export function Navigation() {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        className={`fixed top-0 left-0 z-50 transition-all duration-300 w-full lg:w-2/3 ${
           isScrolled
             ? "bg-background/90 backdrop-blur-md shadow-lg py-4"
             : "bg-transparent py-6"

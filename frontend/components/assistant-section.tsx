@@ -7,7 +7,7 @@ import { ChatMessage } from "@/components/assistant/chat-message";
 import { ChatInput } from "@/components/assistant/chat-input";
 import { SourcesPanel } from "@/components/assistant/sources-panel";
 import { LoadingIndicator } from "@/components/assistant/loading-indicator";
-import { mockAssistantQuery } from "@/lib/assistant-mock";
+import { queryAssistant } from "@/lib/assistant-api";
 import type { AssistantMessage, AssistantSource } from "@/lib/assistant-types";
 
 const suggestedQuestions = [
@@ -43,8 +43,8 @@ export function AssistantSection() {
       setIsLoading(true);
 
       try {
-        // Call mock API (will be replaced with real backend)
-        const response = await mockAssistantQuery(content, conversationId);
+        // Call RAG assistant API
+        const response = await queryAssistant(content, conversationId);
 
         // Add assistant message
         const assistantMessage: AssistantMessage = {
