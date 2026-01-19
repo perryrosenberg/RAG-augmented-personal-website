@@ -10,7 +10,7 @@ export function HeroCompact() {
       <div className="inline-flex items-center gap-2 px-3 py-1.5 mb-6 bg-primary/10 border border-primary/30 rounded-full">
         <Sparkles className="w-3 h-3 text-primary" />
         <span className="text-primary font-mono text-xs">
-          This website was built with AI-first to test and show what you can do using v0.dev and junie
+          This website was built using agentic AI workflows to test and showcase the tools: v0.dev, junie, claude code
         </span>
       </div>
 

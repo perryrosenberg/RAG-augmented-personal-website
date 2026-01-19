@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(./gradlew wrapper)",
+      "Bash(./gradlew jar:*)",
+      "Bash(./gradlew clean:*)",
+      "Bash(java:*)",
+      "Bash(jar tf:*)",
+      "Bash(jar xf:*)",
+      "Bash(cmd /C \"gradlew.bat clean jar\")",
+      "Bash(./gradlew.bat:*)",
+      "Bash(./deploy.sh:*)",
+      "Bash(terraform init:*)"
+    ]
+  }
+}

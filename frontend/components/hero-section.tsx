@@ -15,7 +15,7 @@ export function HeroSection() {
         <div className="inline-flex items-center gap-2 px-4 py-2 mb-8 bg-primary/10 border border-primary/30 rounded-full">
           <Sparkles className="w-4 h-4 text-primary" />
           <span className="text-primary font-mono text-sm">
-            This website was built with AI-first to test and show what you can do using v0.dev and junie
+            This website was built using agentic AI workflows to test and showcase the tools: v0.dev, junie, claude code
           </span>
         </div>
 

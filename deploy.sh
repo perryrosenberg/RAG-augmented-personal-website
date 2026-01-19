@@ -30,7 +30,7 @@ echo "========================================"
 echo ""
 
 # Verify AWS credentials are available
-echo "[1/4] Verifying AWS credentials..."
+echo "[1/5] Verifying AWS credentials..."
 if ! aws sts get-caller-identity > /dev/null 2>&1; then
     echo "  ERROR: AWS credentials not configured."
     echo "  Ensure AWS credentials are configured (aws configure or environment variables)"
@@ -39,11 +39,62 @@ fi
 echo "  AWS Identity verified"
 
 # -----------------------------------------------------------------------------
+# BACKEND BUILD (Must happen BEFORE Terraform)
+# -----------------------------------------------------------------------------
+if [ "$SKIP_BACKEND" = false ]; then
+    echo ""
+    echo "[2/5] Building Backend (Lambda JAR)..."
+
+    BACKEND_DIR="$PROJECT_ROOT/backend"
+
+    if [ -d "$BACKEND_DIR" ]; then
+        cd "$BACKEND_DIR"
+
+        # Build with Gradle
+        echo "  Building Java Lambda with Gradle..."
+
+        # Use gradlew.bat on Windows (Git Bash)
+        if [ -f "gradlew.bat" ]; then
+            ./gradlew.bat clean jar
+        elif [ -f "gradlew" ]; then
+            chmod +x gradlew
+            ./gradlew clean jar
+        elif command -v gradle &> /dev/null; then
+            gradle clean jar
+        else
+            echo "  ERROR: Gradle not found"
+            echo "  To fix: Install Gradle or ensure gradlew wrapper exists"
+            exit 1
+        fi
+
+        if [ ! -f "build/libs/query-handler.jar" ]; then
+            echo "  ERROR: Failed to build query-handler.jar"
+            exit 1
+        fi
+
+        echo "  Backend build complete: build/libs/query-handler.jar"
+    else
+        echo "  ERROR: Backend directory not found"
+        exit 1
+    fi
+else
+    echo ""
+    echo "[2/5] Skipping Backend Build (--skip-backend)"
+
+    # Verify JAR exists if we're not skipping Terraform
+    if [ "$SKIP_TERRAFORM" = false ] && [ ! -f "$PROJECT_ROOT/backend/build/libs/query-handler.jar" ]; then
+        echo "  ERROR: JAR file not found. Cannot run Terraform without building backend first."
+        echo "  Either build the backend or use --skip-terraform"
+        exit 1
+    fi
+fi
+
+# -----------------------------------------------------------------------------
 # TERRAFORM INFRASTRUCTURE
 # -----------------------------------------------------------------------------
 if [ "$SKIP_TERRAFORM" = false ]; then
     echo ""
-    echo "[2/4] Deploying Terraform Infrastructure..."
+    echo "[3/5] Deploying Terraform Infrastructure..."
     
     cd "$PROJECT_ROOT"
     
@@ -83,7 +134,7 @@ if [ "$SKIP_TERRAFORM" = false ]; then
     fi
 else
     echo ""
-    echo "[2/4] Skipping Terraform (--skip-terraform)"
+    echo "[3/5] Skipping Terraform (--skip-terraform)"
 fi
 
 # Get Terraform outputs
@@ -94,77 +145,21 @@ LAMBDA_FUNCTION_NAME=$(terraform output -raw lambda_function_name 2>/dev/null ||
 LAMBDA_BUCKET=$(terraform output -raw lambda_bucket_name 2>/dev/null || echo "")
 
 # -----------------------------------------------------------------------------
-# BACKEND DEPLOYMENT (Lambda)
+# BACKEND DEPLOYMENT (Upload to S3)
 # -----------------------------------------------------------------------------
-if [ "$SKIP_BACKEND" = false ]; then
-    echo ""
-    echo "[3/4] Deploying Backend (Lambda)..."
-    
-    BACKEND_DIR="$PROJECT_ROOT/backend"
-    
-    if [ -d "$BACKEND_DIR" ]; then
-        cd "$BACKEND_DIR"
-        
-        # Build with Gradle
-        echo "  Building Java Lambda with Gradle..."
-        
-        # Ensure Gradle wrapper is executable and has the jar
-        if [ -f "gradlew" ]; then
-            chmod +x gradlew
-            # Download gradle-wrapper.jar if missing
-            if [ ! -f "gradle/wrapper/gradle-wrapper.jar" ]; then
-                echo "  Downloading Gradle wrapper jar..."
-                mkdir -p gradle/wrapper
-                curl -sL -o gradle/wrapper/gradle-wrapper.jar \
-                    "https://raw.githubusercontent.com/gradle/gradle/v8.5.0/gradle/wrapper/gradle-wrapper.jar"
-            fi
-            ./gradlew clean build
-        elif command -v gradle &> /dev/null; then
-            gradle clean build
-        else
-            echo "  WARNING: Gradle not found, skipping backend build"
-            echo "  To fix: Install Gradle or run 'gradle wrapper' in the backend directory"
-            SKIP_BACKEND=true
-        fi
-        
-        if [ "$SKIP_BACKEND" = false ] && [ $? -eq 0 ]; then
-            # Find the built artifact
-            BUILD_ARTIFACT=$(find build/distributions -name "*.zip" 2>/dev/null | head -1)
-            if [ -z "$BUILD_ARTIFACT" ]; then
-                BUILD_ARTIFACT=$(find build/libs -name "*.jar" 2>/dev/null | head -1)
-            fi
-            
-            if [ -n "$BUILD_ARTIFACT" ] && [ -n "$LAMBDA_BUCKET" ]; then
-                echo "  Uploading to S3: $(basename "$BUILD_ARTIFACT")..."
-                aws s3 cp "$BUILD_ARTIFACT" "s3://$LAMBDA_BUCKET/query-handler.zip"
-                
-                if [ -n "$LAMBDA_FUNCTION_NAME" ]; then
-                    echo "  Updating Lambda function code..."
-                    aws lambda update-function-code \
-                        --function-name "$LAMBDA_FUNCTION_NAME" \
-                        --s3-bucket "$LAMBDA_BUCKET" \
-                        --s3-key "query-handler.zip"
-                fi
-                
-                echo "  Backend deployment complete"
-            else
-                echo "  WARNING: No build artifact found or bucket not configured"
-            fi
-        fi
-    else
-        echo "  WARNING: Backend directory not found"
-    fi
-else
-    echo ""
-    echo "[3/4] Skipping Backend (--skip-backend)"
-fi
+# Note: Backend is already built in step [2/5]
+# Terraform uploads the JAR to S3 and creates/updates the Lambda function
+# This section is kept for manual Lambda updates if needed
+echo ""
+echo "[4/5] Backend deployment handled by Terraform"
+echo "  (JAR was uploaded to S3 and Lambda was updated during Terraform apply)"
 
 # -----------------------------------------------------------------------------
 # FRONTEND DEPLOYMENT
 # -----------------------------------------------------------------------------
 if [ "$SKIP_FRONTEND" = false ]; then
     echo ""
-    echo "[4/4] Deploying Frontend..."
+    echo "[5/5] Deploying Frontend..."
     
     # Try to use nvm to switch to correct Node.js version if available
     if [ -f "$HOME/.nvm/nvm.sh" ]; then
@@ -236,7 +231,7 @@ if [ "$SKIP_FRONTEND" = false ]; then
     fi
 else
     echo ""
-    echo "[4/4] Skipping Frontend (--skip-frontend)"
+    echo "[5/5] Skipping Frontend (--skip-frontend)"
 fi
 
 # -----------------------------------------------------------------------------

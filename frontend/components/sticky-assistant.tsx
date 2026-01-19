@@ -93,7 +93,7 @@ export function StickyAssistant() {
           Open Source AI/RAG Architecture Assistant
         </h2>
         <p className="text-xs text-muted-foreground mt-1">
-          Ask about my experience, architecture decisions, and system design.
+          Ask about my experience, architecture decisions, and system design. The RAG documents are books or documentation I've read or used, and should help the model answer with something reflecting my experience.
         </p>
       </div>
 

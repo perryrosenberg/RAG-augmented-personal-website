@@ -64,3 +64,33 @@ output "cloudfront_distribution_id" {
   description = "CloudFront distribution ID (for cache invalidation)."
   value       = var.enable_cloudfront ? aws_cloudfront_distribution.website[0].id : null
 }
+
+output "knowledge_base_id" {
+  description = "ID of the Bedrock Knowledge Base."
+  value       = aws_bedrockagent_knowledge_base.main.id
+}
+
+output "knowledge_base_arn" {
+  description = "ARN of the Bedrock Knowledge Base."
+  value       = aws_bedrockagent_knowledge_base.main.arn
+}
+
+output "vector_store_bucket_name" {
+  description = "Name of the S3 Vectors bucket used for vector storage."
+  value       = aws_s3vectors_vector_bucket.knowledge_base.vector_bucket_name
+}
+
+output "vector_index_name" {
+  description = "Name of the S3 Vectors index."
+  value       = aws_s3vectors_index.knowledge_base.index_name
+}
+
+output "vector_index_arn" {
+  description = "ARN of the S3 Vectors index."
+  value       = aws_s3vectors_index.knowledge_base.index_arn
+}
+
+output "data_source_id" {
+  description = "ID of the Knowledge Base data source."
+  value       = aws_bedrockagent_data_source.s3_documents.data_source_id
+}
