@@ -1,0 +1,74 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.ragwebsite'
+version = '1.0-SNAPSHOT'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // AWS Lambda
+    implementation 'com.amazonaws:aws-lambda-java-core:1.2.3'
+    implementation 'com.amazonaws:aws-lambda-java-events:3.11.4'
+    
+    // AWS SDK v2
+    implementation platform('software.amazon.awssdk:bom:2.41.10')
+    implementation 'software.amazon.awssdk:dynamodb'
+    implementation 'software.amazon.awssdk:s3'
+    implementation 'software.amazon.awssdk:bedrockruntime'
+    implementation 'software.amazon.awssdk:bedrockagentruntime'
+    
+    // JSON processing
+    implementation 'com.google.code.gson:gson:2.10.1'
+    
+    // Logging
+    implementation 'org.slf4j:slf4j-simple:2.0.9'
+    
+    // Testing
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+    testImplementation 'org.mockito:mockito-core:5.5.0'
+    testImplementation 'org.assertj:assertj-core:3.24.2'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+// Build a fat JAR for Lambda deployment using native Gradle Jar task
+jar {
+    archiveBaseName.set('query-handler')
+    archiveVersion.set('')
+    manifest {
+        attributes(
+            'Main-Class': 'com.ragwebsite.handlers.QueryHandler'
+        )
+    }
+
+    // Include compiled classes and resources
+    from sourceSets.main.output
+
+    // Include all dependencies (fat JAR)
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+    // Exclude signature files that can cause issues
+    exclude 'META-INF/*.SF'
+    exclude 'META-INF/*.DSA'
+    exclude 'META-INF/*.RSA'
+
+    // For duplicate files, prefer the first occurrence
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    // Preserve directory structure and timestamps
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+}
