@@ -38,6 +38,7 @@ frontend/next-env.d.ts
 tfplan
 .terraform/
 .terraform.lock.hcl
+terraform.log
 
 # Backend (Java/Gradle)
 backend/build/
