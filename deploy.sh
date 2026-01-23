@@ -9,6 +9,7 @@ SKIP_TERRAFORM=false
 SKIP_BACKEND=false
 SKIP_FRONTEND=false
 SKIP_RAG_RESOURCES=false
+SKIP_TESTS=false
 TERRAFORM_PLAN_ONLY=false
 
 while [[ $# -gt 0 ]]; do
@@ -17,6 +18,7 @@ while [[ $# -gt 0 ]]; do
         --skip-backend) SKIP_BACKEND=true; shift ;;
         --skip-frontend) SKIP_FRONTEND=true; shift ;;
         --skip-rag-resources) SKIP_RAG_RESOURCES=true; shift ;;
+        --skip-tests) SKIP_TESTS=true; shift ;;
         --terraform-plan-only) TERRAFORM_PLAN_ONLY=true; shift ;;
         *) echo "Unknown option: $1"; exit 1 ;;
     esac
@@ -30,7 +32,7 @@ echo "========================================"
 echo ""
 
 # Verify AWS credentials are available
-echo "[1/5] Verifying AWS credentials..."
+echo "[1/6] Verifying AWS credentials..."
 if ! aws sts get-caller-identity > /dev/null 2>&1; then
     echo "  ERROR: AWS credentials not configured."
     echo "  Ensure AWS credentials are configured (aws configure or environment variables)"
@@ -39,11 +41,45 @@ fi
 echo "  AWS Identity verified"
 
 # -----------------------------------------------------------------------------
+# RUN TESTS (CI/CD Quality Gate)
+# -----------------------------------------------------------------------------
+if [ "$SKIP_TESTS" = false ]; then
+    echo ""
+    echo "[2/6] Running Test Suite..."
+    echo "  This ensures code quality before deployment."
+    echo "  Use --skip-tests to bypass (not recommended for production)"
+    echo ""
+
+    cd "$PROJECT_ROOT"
+
+    # Run test.sh script
+    if [ -f "test.sh" ]; then
+        if bash test.sh; then
+            echo ""
+            echo "  ✓ All tests passed - proceeding with deployment"
+        else
+            echo ""
+            echo "  ✗ Tests failed - aborting deployment"
+            echo "  Fix test failures before deploying to prevent bugs in production"
+            echo "  Or use --skip-tests to bypass (not recommended)"
+            exit 1
+        fi
+    else
+        echo "  WARNING: test.sh not found, skipping tests"
+        echo "  Run './test.sh' manually to verify code quality"
+    fi
+else
+    echo ""
+    echo "[2/6] Skipping Tests (--skip-tests)"
+    echo "  WARNING: Deploying without running tests is not recommended"
+fi
+
+# -----------------------------------------------------------------------------
 # BACKEND BUILD (Must happen BEFORE Terraform)
 # -----------------------------------------------------------------------------
 if [ "$SKIP_BACKEND" = false ]; then
     echo ""
-    echo "[2/5] Building Backend (Lambda JAR)..."
+    echo "[3/6] Building Backend (Lambda JAR)..."
 
     BACKEND_DIR="$PROJECT_ROOT/backend"
 
@@ -79,7 +115,7 @@ if [ "$SKIP_BACKEND" = false ]; then
     fi
 else
     echo ""
-    echo "[2/5] Skipping Backend Build (--skip-backend)"
+    echo "[3/6] Skipping Backend Build (--skip-backend)"
 
     # Verify JAR exists if we're not skipping Terraform
     if [ "$SKIP_TERRAFORM" = false ] && [ ! -f "$PROJECT_ROOT/backend/build/libs/query-handler.jar" ]; then
@@ -94,7 +130,7 @@ fi
 # -----------------------------------------------------------------------------
 if [ "$SKIP_TERRAFORM" = false ]; then
     echo ""
-    echo "[3/5] Deploying Terraform Infrastructure..."
+    echo "[4/6] Deploying Terraform Infrastructure..."
     
     cd "$PROJECT_ROOT"
     
@@ -134,7 +170,7 @@ if [ "$SKIP_TERRAFORM" = false ]; then
     fi
 else
     echo ""
-    echo "[3/5] Skipping Terraform (--skip-terraform)"
+    echo "[4/6] Skipping Terraform (--skip-terraform)"
 fi
 
 # Get Terraform outputs
@@ -147,11 +183,11 @@ LAMBDA_BUCKET=$(terraform output -raw lambda_bucket_name 2>/dev/null || echo "")
 # -----------------------------------------------------------------------------
 # BACKEND DEPLOYMENT (Upload to S3)
 # -----------------------------------------------------------------------------
-# Note: Backend is already built in step [2/5]
+# Note: Backend is already built in step [3/6]
 # Terraform uploads the JAR to S3 and creates/updates the Lambda function
 # This section is kept for manual Lambda updates if needed
 echo ""
-echo "[4/5] Backend deployment handled by Terraform"
+echo "[5/6] Backend deployment handled by Terraform"
 echo "  (JAR was uploaded to S3 and Lambda was updated during Terraform apply)"
 
 # -----------------------------------------------------------------------------
@@ -159,7 +195,7 @@ echo "  (JAR was uploaded to S3 and Lambda was updated during Terraform apply)"
 # -----------------------------------------------------------------------------
 if [ "$SKIP_FRONTEND" = false ]; then
     echo ""
-    echo "[5/5] Deploying Frontend..."
+    echo "[6/6] Deploying Frontend..."
     
     # Try to use nvm to switch to correct Node.js version if available
     if [ -f "$HOME/.nvm/nvm.sh" ]; then
@@ -210,28 +246,39 @@ if [ "$SKIP_FRONTEND" = false ]; then
         
         # Build for production
         echo "  Building Next.js application..."
-        npm run build
-        
-        if [ $? -eq 0 ] && [ -n "$WEBSITE_BUCKET" ]; then
-            # For static export, sync the out directory
-            OUT_DIR="out"
-            if [ ! -d "$OUT_DIR" ]; then
-                OUT_DIR=".next"
-            fi
-            
-            echo "  Syncing to S3: $WEBSITE_BUCKET..."
-            aws s3 sync "$OUT_DIR" "s3://$WEBSITE_BUCKET" --delete
-            
-            echo "  Frontend deployment complete"
-        else
-            echo "  WARNING: Build failed or website bucket not configured"
+        if ! npm run build; then
+            echo "  ERROR: Frontend build failed!"
+            exit 1
         fi
+
+        # Verify website bucket is configured
+        if [ -z "$WEBSITE_BUCKET" ]; then
+            echo "  ERROR: Website bucket not configured (Terraform output missing)"
+            echo "  Run: terraform output website_bucket_name"
+            exit 1
+        fi
+
+        # For static export, sync the out directory
+        OUT_DIR="out"
+        if [ ! -d "$OUT_DIR" ]; then
+            echo "  ERROR: Expected 'out' directory not found after build"
+            echo "  Check next.config.mjs has output: 'export'"
+            exit 1
+        fi
+
+        echo "  Syncing to S3: $WEBSITE_BUCKET..."
+        if ! aws s3 sync "$OUT_DIR" "s3://$WEBSITE_BUCKET" --delete; then
+            echo "  ERROR: Failed to sync frontend to S3"
+            exit 1
+        fi
+
+        echo "  Frontend deployment complete"
     else
         echo "  WARNING: Frontend directory not found"
     fi
 else
     echo ""
-    echo "[5/5] Skipping Frontend (--skip-frontend)"
+    echo "[6/6] Skipping Frontend (--skip-frontend)"
 fi
 
 # -----------------------------------------------------------------------------

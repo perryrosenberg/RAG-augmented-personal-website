@@ -70,7 +70,7 @@ export function AboutSection() {
           <div className="grid md:grid-cols-2 gap-8 mt-8">
             <div>
               <h3 className="text-foreground font-semibold mb-3">Languages</h3>
-              <ul className="grid grid-cols-2 gap-2 font-mono text-sm">
+              <ul className="grid grid-cols-2 gap-2 font-mono text-base">
                 {languages.map((skill) => (
                   <li key={skill} className="flex items-center gap-2">
                     <span className="text-primary">▹</span>
@@ -82,7 +82,7 @@ export function AboutSection() {
             
             <div>
               <h3 className="text-foreground font-semibold mb-3">AWS Services</h3>
-              <ul className="grid grid-cols-2 gap-2 font-mono text-sm">
+              <ul className="grid grid-cols-2 gap-2 font-mono text-base">
                 {aws.map((skill) => (
                   <li key={skill} className="flex items-center gap-2">
                     <span className="text-primary">▹</span>
@@ -94,7 +94,7 @@ export function AboutSection() {
 
             <div>
               <h3 className="text-foreground font-semibold mb-3">Tooling & DevOps</h3>
-              <ul className="grid grid-cols-2 gap-2 font-mono text-sm">
+              <ul className="grid grid-cols-2 gap-2 font-mono text-base">
                 {tooling.map((skill) => (
                   <li key={skill} className="flex items-center gap-2">
                     <span className="text-primary">▹</span>
@@ -106,7 +106,7 @@ export function AboutSection() {
 
             <div>
               <h3 className="text-foreground font-semibold mb-3">AI Tools</h3>
-              <ul className="grid grid-cols-2 gap-2 font-mono text-sm">
+              <ul className="grid grid-cols-2 gap-2 font-mono text-base">
                 {ai.map((skill) => (
                   <li key={skill} className="flex items-center gap-2">
                     <span className="text-primary">▹</span>

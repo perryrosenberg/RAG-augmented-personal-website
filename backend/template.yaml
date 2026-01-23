@@ -1,0 +1,143 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  RAG-Augmented Personal Website - Backend Lambda Function
+
+  SAM template for local development and testing of the Java Lambda function.
+  Use this with SAM CLI to run and test the Lambda locally before deploying.
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 1024
+    Runtime: java17
+    Architectures:
+      - x86_64
+    Environment:
+      Variables:
+        KNOWLEDGE_BUCKET: local-knowledge-bucket
+        CONVERSATIONS_TABLE: local-conversations-table
+        DOCUMENTS_TABLE: local-documents-table
+        ENVIRONMENT: local
+
+Resources:
+  QueryHandlerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: rag-website-query-handler-local
+      CodeUri: build/libs/query-handler.jar
+      Handler: com.perryrosenberg.portfolio.handler.QueryHandler::handleRequest
+      Description: Handles RAG queries from the portfolio website
+      Environment:
+        Variables:
+          # Override with actual values when testing
+          KNOWLEDGE_BUCKET: !Ref KnowledgeBucket
+          CONVERSATIONS_TABLE: !Ref ConversationsTable
+          DOCUMENTS_TABLE: !Ref DocumentsTable
+          ENVIRONMENT: local
+          AWS_REGION: us-east-1
+      Policies:
+        - AmazonS3ReadOnlyAccess
+        - AmazonDynamoDBFullAccess
+        - Statement:
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+                - bedrock:InvokeModelWithResponseStream
+              Resource:
+                - arn:aws:bedrock:*::foundation-model/*
+            - Effect: Allow
+              Action:
+                - bedrock-agent-runtime:Retrieve
+                - bedrock-agent-runtime:RetrieveAndGenerate
+              Resource: '*'
+            - Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: '*'
+      Events:
+        QueryApi:
+          Type: Api
+          Properties:
+            Path: /api/query
+            Method: POST
+            RestApiId: !Ref ApiGateway
+        HealthCheckApi:
+          Type: Api
+          Properties:
+            Path: /api/health
+            Method: GET
+            RestApiId: !Ref ApiGateway
+        OptionsApi:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: OPTIONS
+            RestApiId: !Ref ApiGateway
+
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: rag-website-api-local
+      StageName: local
+      Cors:
+        AllowMethods: "'GET,POST,OPTIONS'"
+        AllowHeaders: "'Content-Type,Authorization'"
+        AllowOrigin: "'*'"
+        AllowCredentials: false
+
+  # Local DynamoDB Tables (for SAM local testing)
+  ConversationsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: rag-website-conversations-local
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: conversationId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: conversationId
+          KeyType: HASH
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+
+  DocumentsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: rag-website-documents-local
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: documentId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: documentId
+          KeyType: HASH
+
+  # Local S3 Bucket (for SAM local testing with localstack)
+  KnowledgeBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: rag-website-knowledge-local
+
+Outputs:
+  QueryHandlerFunction:
+    Description: Query Handler Lambda Function ARN
+    Value: !GetAtt QueryHandlerFunction.Arn
+  QueryHandlerFunctionIamRole:
+    Description: IAM Role for Query Handler
+    Value: !GetAtt QueryHandlerFunctionRole.Arn
+  ApiEndpoint:
+    Description: API Gateway endpoint URL
+    Value: !Sub 'https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/local'
+  KnowledgeBucketName:
+    Description: S3 Bucket for knowledge base documents
+    Value: !Ref KnowledgeBucket
+  ConversationsTableName:
+    Description: DynamoDB table for conversations
+    Value: !Ref ConversationsTable
+  DocumentsTableName:
+    Description: DynamoDB table for documents
+    Value: !Ref DocumentsTable

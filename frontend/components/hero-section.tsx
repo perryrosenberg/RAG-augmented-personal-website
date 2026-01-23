@@ -1,6 +1,6 @@
 "use client";
 
-import { Github, Linkedin, Mail, FileText, ArrowDown, Sparkles } from "lucide-react";
+import { Github, Linkedin, Mail, ArrowDown, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 export function HeroSection() {
@@ -14,12 +14,12 @@ export function HeroSection() {
         {/* AI Built Badge - Top Billing */}
         <div className="inline-flex items-center gap-2 px-4 py-2 mb-8 bg-primary/10 border border-primary/30 rounded-full">
           <Sparkles className="w-4 h-4 text-primary" />
-          <span className="text-primary font-mono text-sm">
-            This website was built using agentic AI workflows to test and showcase the tools: v0.dev, junie, claude code
+          <span className="text-primary font-mono text-base">
+            This website was built using agentic AI workflows to test and showcase the tools (v0.dev, junie, claude code) and is Open Source for transparency
           </span>
         </div>
 
-        <p className="text-primary font-mono text-sm md:text-base mb-4">
+        <p className="text-primary font-mono text-base md:text-base mb-4">
           Hi, my name is
         </p>
         <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-4 text-balance">
@@ -38,7 +38,7 @@ export function HeroSection() {
             href="https://www.linkedin.com/in/perry-rosenberg/"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-5 py-3 border border-primary text-primary hover:bg-primary/10 transition-colors rounded-md font-mono text-sm"
+            className="flex items-center gap-2 px-5 py-3 border border-primary text-primary hover:bg-primary/10 transition-colors rounded-md font-mono text-base"
           >
             <Linkedin className="w-4 h-4" />
             LinkedIn
@@ -47,22 +47,14 @@ export function HeroSection() {
             href="https://github.com/perryrosenberg"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-5 py-3 border border-border text-muted-foreground hover:border-primary hover:text-primary transition-colors rounded-md font-mono text-sm"
+            className="flex items-center gap-2 px-5 py-3 border border-border text-muted-foreground hover:border-primary hover:text-primary transition-colors rounded-md font-mono text-base"
           >
             <Github className="w-4 h-4" />
             GitHub
           </Link>
           <Link
-            href="/resume.pdf"
-            target="_blank"
-            className="flex items-center gap-2 px-5 py-3 border border-border text-muted-foreground hover:border-primary hover:text-primary transition-colors rounded-md font-mono text-sm"
-          >
-            <FileText className="w-4 h-4" />
-            Resume
-          </Link>
-          <Link
             href="mailto:perry_rosenberg@alumni.brown.edu"
-            className="flex items-center gap-2 px-5 py-3 border border-border text-muted-foreground hover:border-primary hover:text-primary transition-colors rounded-md font-mono text-sm"
+            className="flex items-center gap-2 px-5 py-3 border border-border text-muted-foreground hover:border-primary hover:text-primary transition-colors rounded-md font-mono text-base"
           >
             <Mail className="w-4 h-4" />
             Email

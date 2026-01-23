@@ -11,7 +11,24 @@
       "Bash(cmd /C \"gradlew.bat clean jar\")",
       "Bash(./gradlew.bat:*)",
       "Bash(./deploy.sh:*)",
-      "Bash(terraform init:*)"
+      "Bash(terraform init:*)",
+      "Bash(tree:*)",
+      "Bash(jar -tf:*)",
+      "Bash(jar -xf:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run build:*)",
+      "Bash(gradlew.bat clean test)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(chmod:*)",
+      "Bash(npm install)",
+      "Bash(bash test.sh:*)",
+      "Bash(node --version:*)",
+      "Bash(nvm use:*)",
+      "Bash(npm install:*)",
+      "Bash(terraform state rm:*)",
+      "Bash(terraform plan:*)",
+      "Bash(terraform show:*)"
     ]
   }
 }

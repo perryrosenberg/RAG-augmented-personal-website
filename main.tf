@@ -144,210 +144,237 @@ resource "aws_dynamodb_table" "document_metadata" {
 # -----------------------------------------------------------------------------
 # S3 VECTORS FOR VECTOR STORAGE
 # -----------------------------------------------------------------------------
-
-# S3 Vectors bucket for storing vector embeddings
-resource "aws_s3vectors_vector_bucket" "knowledge_base" {
-  vector_bucket_name = "${var.project_name}-vectors-${var.environment}"
-}
-
-# S3 Vectors index for semantic search
-resource "aws_s3vectors_index" "knowledge_base" {
-  index_name         = "${var.project_name}-kb-index-${var.environment}"
-  vector_bucket_name = aws_s3vectors_vector_bucket.knowledge_base.vector_bucket_name
-
-  data_type       = "float32"
-  dimension       = 1024
-  distance_metric = "euclidean"
-}
+# COMMENTED OUT - Managed manually in AWS Console
+# # S3 Vectors bucket for storing vector embeddings
+# resource "aws_s3vectors_vector_bucket" "knowledge_base" {
+#   vector_bucket_name = "${var.project_name}-vectors-${var.environment}"
+# }
+#
+# # S3 Vectors index for semantic search
+# resource "aws_s3vectors_index" "knowledge_base" {
+#   index_name         = "${var.project_name}-kb-index-${var.environment}"
+#   vector_bucket_name = aws_s3vectors_vector_bucket.knowledge_base.vector_bucket_name
+#
+#   data_type       = "float32"
+#   dimension       = 1024
+#   distance_metric = "euclidean"
+# }
 
 # -----------------------------------------------------------------------------
 # IAM ROLES
 # -----------------------------------------------------------------------------
-
-# IAM role for Bedrock Knowledge Base
-resource "aws_iam_role" "bedrock_kb" {
-  name = "${var.project_name}-bedrock-kb-${var.environment}"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "bedrock.amazonaws.com"
-        }
-        Condition = {
-          StringEquals = {
-            "aws:SourceAccount" = data.aws_caller_identity.current.account_id
-          }
-          ArnLike = {
-            "aws:SourceArn" = "arn:aws:bedrock:${var.aws_region}:${data.aws_caller_identity.current.account_id}:knowledge-base/*"
-          }
-        }
-      }
-    ]
-  })
-}
+# COMMENTED OUT - Bedrock KB IAM roles managed manually in AWS Console
+# # IAM role for Bedrock Knowledge Base
+# resource "aws_iam_role" "bedrock_kb" {
+#   name = "${var.project_name}-bedrock-kb-${var.environment}"
+#
+#   assume_role_policy = jsonencode({
+#     Version = "2012-10-17"
+#     Statement = [
+#       {
+#         Action = "sts:AssumeRole"
+#         Effect = "Allow"
+#         Principal = {
+#           Service = "bedrock.amazonaws.com"
+#         }
+#         Condition = {
+#           StringEquals = {
+#             "aws:SourceAccount" = data.aws_caller_identity.current.account_id
+#           }
+#           ArnLike = {
+#             "aws:SourceArn" = "arn:aws:bedrock:${var.aws_region}:${data.aws_caller_identity.current.account_id}:knowledge-base/*"
+#           }
+#         }
+#       }
+#     ]
+#   })
+#
+#   lifecycle {
+#     ignore_changes = all
+#   }
+# }
 
 # Get current AWS account ID
 data "aws_caller_identity" "current" {}
 
-# IAM policy for Bedrock Knowledge Base to access S3 (knowledge bucket)
-resource "aws_iam_role_policy" "bedrock_kb_s3_knowledge" {
-  name = "${var.project_name}-bedrock-kb-s3-knowledge-policy"
-  role = aws_iam_role.bedrock_kb.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "s3:GetObject",
-          "s3:ListBucket"
-        ]
-        Resource = [
-          aws_s3_bucket.knowledge_bucket.arn,
-          "${aws_s3_bucket.knowledge_bucket.arn}/*"
-        ]
-        Condition = {
-          StringEquals = {
-            "aws:PrincipalAccount" = data.aws_caller_identity.current.account_id
-          }
-        }
-      }
-    ]
-  })
-}
-
-# IAM policy for Bedrock Knowledge Base to access S3 Vectors
-resource "aws_iam_role_policy" "bedrock_kb_s3_vectors" {
-  name = "${var.project_name}-bedrock-kb-s3-vectors-policy"
-  role = aws_iam_role.bedrock_kb.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "s3vectors:*"
-        ]
-        Resource = [
-          "arn:aws:s3vectors:${var.aws_region}:${data.aws_caller_identity.current.account_id}:bucket/${aws_s3vectors_vector_bucket.knowledge_base.vector_bucket_name}",
-          "arn:aws:s3vectors:${var.aws_region}:${data.aws_caller_identity.current.account_id}:bucket/${aws_s3vectors_vector_bucket.knowledge_base.vector_bucket_name}/index/${aws_s3vectors_index.knowledge_base.index_name}"
-        ]
-      },
-      {
-        Effect = "Allow"
-        Action = [
-          "s3:GetObject",
-          "s3:PutObject",
-          "s3:DeleteObject",
-          "s3:ListBucket"
-        ]
-        Resource = [
-          "arn:aws:s3:::${aws_s3vectors_vector_bucket.knowledge_base.vector_bucket_name}",
-          "arn:aws:s3:::${aws_s3vectors_vector_bucket.knowledge_base.vector_bucket_name}/*"
-        ]
-      }
-    ]
-  })
-}
-
-# IAM policy for Bedrock Knowledge Base to use embedding model
-resource "aws_iam_role_policy" "bedrock_kb_model" {
-  name = "${var.project_name}-bedrock-kb-model-policy"
-  role = aws_iam_role.bedrock_kb.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "bedrock:InvokeModel"
-        ]
-        Resource = [
-          "arn:aws:bedrock:${var.aws_region}::foundation-model/amazon.titan-embed-text-v1",
-          "arn:aws:bedrock:${var.aws_region}::foundation-model/amazon.titan-embed-text-v2:0"
-        ]
-      }
-    ]
-  })
-}
+# COMMENTED OUT - Bedrock KB IAM policies managed manually in AWS Console
+# # IAM policy for Bedrock Knowledge Base to access S3 (knowledge bucket)
+# resource "aws_iam_role_policy" "bedrock_kb_s3_knowledge" {
+#   name = "${var.project_name}-bedrock-kb-s3-knowledge-policy"
+#   role = aws_iam_role.bedrock_kb.id
+#
+#   policy = jsonencode({
+#     Version = "2012-10-17"
+#     Statement = [
+#       {
+#         Effect = "Allow"
+#         Action = [
+#           "s3:GetObject",
+#           "s3:ListBucket"
+#         ]
+#         Resource = [
+#           aws_s3_bucket.knowledge_bucket.arn,
+#           "${aws_s3_bucket.knowledge_bucket.arn}/*"
+#         ]
+#         Condition = {
+#           StringEquals = {
+#             "aws:PrincipalAccount" = data.aws_caller_identity.current.account_id
+#           }
+#         }
+#       }
+#     ]
+#   })
+#
+#   lifecycle {
+#     ignore_changes = all
+#   }
+# }
+#
+# # IAM policy for Bedrock Knowledge Base to access S3 Vectors
+# resource "aws_iam_role_policy" "bedrock_kb_s3_vectors" {
+#   name = "${var.project_name}-bedrock-kb-s3-vectors-policy"
+#   role = aws_iam_role.bedrock_kb.id
+#
+#   policy = jsonencode({
+#     Version = "2012-10-17"
+#     Statement = [
+#       {
+#         Effect = "Allow"
+#         Action = [
+#           "s3vectors:*"
+#         ]
+#         Resource = [
+#           "arn:aws:s3vectors:${var.aws_region}:${data.aws_caller_identity.current.account_id}:bucket/${aws_s3vectors_vector_bucket.knowledge_base.vector_bucket_name}",
+#           "arn:aws:s3vectors:${var.aws_region}:${data.aws_caller_identity.current.account_id}:bucket/${aws_s3vectors_vector_bucket.knowledge_base.vector_bucket_name}/index/${aws_s3vectors_index.knowledge_base.index_name}"
+#         ]
+#       },
+#       {
+#         Effect = "Allow"
+#         Action = [
+#           "s3:GetObject",
+#           "s3:PutObject",
+#           "s3:DeleteObject",
+#           "s3:ListBucket"
+#         ]
+#         Resource = [
+#           "arn:aws:s3:::${aws_s3vectors_vector_bucket.knowledge_base.vector_bucket_name}",
+#           "arn:aws:s3:::${aws_s3vectors_vector_bucket.knowledge_base.vector_bucket_name}/*"
+#         ]
+#       }
+#     ]
+#   })
+#
+#   lifecycle {
+#     ignore_changes = all
+#   }
+# }
+#
+# # IAM policy for Bedrock Knowledge Base to use embedding model
+# resource "aws_iam_role_policy" "bedrock_kb_model" {
+#   name = "${var.project_name}-bedrock-kb-model-policy"
+#   role = aws_iam_role.bedrock_kb.id
+#
+#   policy = jsonencode({
+#     Version = "2012-10-17"
+#     Statement = [
+#       {
+#         Effect = "Allow"
+#         Action = [
+#           "bedrock:InvokeModel"
+#         ]
+#         Resource = [
+#           "arn:aws:bedrock:${var.aws_region}::foundation-model/amazon.titan-embed-text-v1",
+#           "arn:aws:bedrock:${var.aws_region}::foundation-model/amazon.titan-embed-text-v2:0"
+#         ]
+#       }
+#     ]
+#   })
+#
+#   lifecycle {
+#     ignore_changes = all
+#   }
+# }
 
 # -----------------------------------------------------------------------------
 # BEDROCK KNOWLEDGE BASE
 # -----------------------------------------------------------------------------
-
-# Bedrock Knowledge Base with S3 Vectors storage
-resource "aws_bedrockagent_knowledge_base" "main" {
-  name        = "${var.project_name}-kb-${var.environment}"
-  description = "RAG knowledge base for personal website (S3 Vectors storage)"
-  role_arn    = aws_iam_role.bedrock_kb.arn
-
-  knowledge_base_configuration {
-    type = "VECTOR"
-    vector_knowledge_base_configuration {
-      embedding_model_arn = "arn:aws:bedrock:${var.aws_region}::foundation-model/amazon.titan-embed-text-v2:0"
-      embedding_model_configuration {
-        bedrock_embedding_model_configuration {
-          dimensions          = 1024
-          embedding_data_type = "FLOAT32"
-        }
-      }
-    }
-  }
-
-  storage_configuration {
-    type = "S3_VECTORS"
-    s3_vectors_configuration {
-      index_arn = aws_s3vectors_index.knowledge_base.index_arn
-    }
-  }
-
-  depends_on = [
-    aws_iam_role_policy.bedrock_kb_s3_knowledge,
-    aws_iam_role_policy.bedrock_kb_s3_vectors,
-    aws_iam_role_policy.bedrock_kb_model,
-    aws_s3vectors_index.knowledge_base
-  ]
-
-  tags = {
-    Name = "RAG Knowledge Base"
-  }
-}
-
-# Bedrock Knowledge Base Data Source (connects to S3)
-resource "aws_bedrockagent_data_source" "s3_documents" {
-  knowledge_base_id = aws_bedrockagent_knowledge_base.main.id
-  name              = "s3-documents"
-  description       = "S3 bucket containing knowledge base documents"
-
-  data_source_configuration {
-    type = "S3"
-    s3_configuration {
-      bucket_arn = aws_s3_bucket.knowledge_bucket.arn
-      inclusion_prefixes = ["documents/"]
-    }
-  }
-
-  vector_ingestion_configuration {
-    chunking_configuration {
-      chunking_strategy = "FIXED_SIZE"
-      fixed_size_chunking_configuration {
-        max_tokens         = 300
-        overlap_percentage = 20
-      }
-    }
-  }
-
-  depends_on = [
-    aws_bedrockagent_knowledge_base.main
-  ]
-}
+# COMMENTED OUT - Managed manually in AWS Console
+# # Bedrock Knowledge Base with S3 Vectors storage
+# resource "aws_bedrockagent_knowledge_base" "main" {
+#   name        = "${var.project_name}-kb-${var.environment}"
+#   description = "RAG knowledge base for personal website (S3 Vectors storage)"
+#   role_arn    = aws_iam_role.bedrock_kb.arn
+#
+#   knowledge_base_configuration {
+#     type = "VECTOR"
+#     vector_knowledge_base_configuration {
+#       embedding_model_arn = "arn:aws:bedrock:${var.aws_region}::foundation-model/amazon.titan-embed-text-v2:0"
+#       embedding_model_configuration {
+#         bedrock_embedding_model_configuration {
+#           dimensions          = 1024
+#           embedding_data_type = "FLOAT32"
+#         }
+#       }
+#     }
+#   }
+#
+#   storage_configuration {
+#     type = "S3_VECTORS"
+#     s3_vectors_configuration {
+#       index_arn = aws_s3vectors_index.knowledge_base.index_arn
+#     }
+#   }
+#
+#   depends_on = [
+#     aws_iam_role_policy.bedrock_kb_s3_knowledge,
+#     aws_iam_role_policy.bedrock_kb_s3_vectors,
+#     aws_iam_role_policy.bedrock_kb_model,
+#     aws_s3vectors_index.knowledge_base
+#   ]
+#
+#   tags = {
+#     Name = "RAG Knowledge Base"
+#   }
+#
+#   lifecycle {
+#     ignore_changes = all
+#   }
+# }
+#
+# # Bedrock Knowledge Base Data Source (connects to S3)
+# resource "aws_bedrockagent_data_source" "s3_documents" {
+#   knowledge_base_id = aws_bedrockagent_knowledge_base.main.id
+#   name              = "s3-documents"
+#   description       = "S3 bucket containing knowledge base documents (v2 with improved parser)"
+#
+#   data_source_configuration {
+#     type = "S3"
+#     s3_configuration {
+#       bucket_arn = aws_s3_bucket.knowledge_bucket.arn
+#       inclusion_prefixes = ["documents/"]
+#     }
+#   }
+#
+#   vector_ingestion_configuration {
+#     chunking_configuration {
+#       chunking_strategy = "FIXED_SIZE"
+#       fixed_size_chunking_configuration {
+#         max_tokens         = 300
+#         overlap_percentage = 20
+#       }
+#     }
+#   }
+#
+#   # Ignore all drift - this resource is manually managed in AWS Console
+#   # Terraform only tracks the resource but won't modify it
+#   lifecycle {
+#     ignore_changes = all
+#   }
+#
+#   depends_on = [
+#     aws_bedrockagent_knowledge_base.main
+#   ]
+# }
 
 # Lambda execution role
 resource "aws_iam_role" "lambda_exec" {
@@ -417,7 +444,7 @@ resource "aws_iam_role_policy" "lambda_permissions" {
           "bedrock:Retrieve",
           "bedrock:RetrieveAndGenerate"
         ]
-        Resource = aws_bedrockagent_knowledge_base.main.arn
+        Resource = "arn:aws:bedrock:${var.aws_region}:${data.aws_caller_identity.current.account_id}:knowledge-base/RA59IH60FE"
       },
       {
         Effect = "Allow"
@@ -453,7 +480,7 @@ resource "aws_lambda_function" "query_handler" {
   s3_key    = aws_s3_object.lambda_query_handler.key
 
   runtime = "java17"
-  handler = "com.ragwebsite.handlers.QueryHandler::handleRequest"
+  handler = "com.perryrosenberg.portfolio.handler.QueryHandler::handleRequest"
 
   source_code_hash = filebase64sha256("${path.module}/backend/build/libs/query-handler.jar")
 
@@ -467,7 +494,7 @@ resource "aws_lambda_function" "query_handler" {
       CONVERSATIONS_TABLE = aws_dynamodb_table.conversations.name
       DOCUMENTS_TABLE     = aws_dynamodb_table.document_metadata.name
       KNOWLEDGE_BUCKET    = aws_s3_bucket.knowledge_bucket.id
-      KNOWLEDGE_BASE_ID   = aws_bedrockagent_knowledge_base.main.id
+      KNOWLEDGE_BASE_ID   = "RA59IH60FE"  # Hardcoded - managed manually in AWS Console
       ENVIRONMENT         = var.environment
     }
   }
@@ -481,64 +508,76 @@ resource "aws_cloudwatch_log_group" "query_handler" {
 # -----------------------------------------------------------------------------
 # BEDROCK MODEL INVOCATION LOGGING
 # -----------------------------------------------------------------------------
-
-# CloudWatch log group for Bedrock model invocations
-resource "aws_cloudwatch_log_group" "bedrock_invocations" {
-  name              = "/aws/bedrock/modelinvocations/${var.project_name}-${var.environment}"
-  retention_in_days = 14
-}
-
-# IAM role for Bedrock to write logs to CloudWatch
-resource "aws_iam_role" "bedrock_logging" {
-  name = "${var.project_name}-bedrock-logging-${var.environment}"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "bedrock.amazonaws.com"
-        }
-      }
-    ]
-  })
-}
-
-# IAM policy for Bedrock logging role
-resource "aws_iam_role_policy" "bedrock_logging" {
-  name = "${var.project_name}-bedrock-logging-policy"
-  role = aws_iam_role.bedrock_logging.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "logs:CreateLogStream",
-          "logs:PutLogEvents"
-        ]
-        Resource = "${aws_cloudwatch_log_group.bedrock_invocations.arn}:*"
-      }
-    ]
-  })
-}
-
-# Bedrock model invocation logging configuration
-resource "aws_bedrock_model_invocation_logging_configuration" "main" {
-  logging_config {
-    embedding_data_delivery_enabled = true
-    image_data_delivery_enabled     = true
-    text_data_delivery_enabled      = true
-
-    cloudwatch_config {
-      log_group_name = aws_cloudwatch_log_group.bedrock_invocations.name
-      role_arn       = aws_iam_role.bedrock_logging.arn
-    }
-  }
-}
+# COMMENTED OUT - Managed manually in AWS Console
+# # CloudWatch log group for Bedrock model invocations
+# resource "aws_cloudwatch_log_group" "bedrock_invocations" {
+#   name              = "/aws/bedrock/modelinvocations/${var.project_name}-${var.environment}"
+#   retention_in_days = 14
+# }
+#
+# # IAM role for Bedrock to write logs to CloudWatch
+# resource "aws_iam_role" "bedrock_logging" {
+#   name = "${var.project_name}-bedrock-logging-${var.environment}"
+#
+#   assume_role_policy = jsonencode({
+#     Version = "2012-10-17"
+#     Statement = [
+#       {
+#         Action = "sts:AssumeRole"
+#         Effect = "Allow"
+#         Principal = {
+#           Service = "bedrock.amazonaws.com"
+#         }
+#       }
+#     ]
+#   })
+#
+#   lifecycle {
+#     ignore_changes = all
+#   }
+# }
+#
+# # IAM policy for Bedrock logging role
+# resource "aws_iam_role_policy" "bedrock_logging" {
+#   name = "${var.project_name}-bedrock-logging-policy"
+#   role = aws_iam_role.bedrock_logging.id
+#
+#   policy = jsonencode({
+#     Version = "2012-10-17"
+#     Statement = [
+#       {
+#         Effect = "Allow"
+#         Action = [
+#           "logs:CreateLogStream",
+#           "logs:PutLogEvents"
+#         ]
+#         Resource = "${aws_cloudwatch_log_group.bedrock_invocations.arn}:*"
+#       }
+#     ]
+#   })
+#
+#   lifecycle {
+#     ignore_changes = all
+#   }
+# }
+#
+# # Bedrock model invocation logging configuration
+# resource "aws_bedrock_model_invocation_logging_configuration" "main" {
+#   logging_config {
+#     embedding_data_delivery_enabled = true
+#     image_data_delivery_enabled     = true
+#     text_data_delivery_enabled      = true
+#
+#     cloudwatch_config {
+#       log_group_name = aws_cloudwatch_log_group.bedrock_invocations.name
+#       role_arn       = aws_iam_role.bedrock_logging.arn
+#     }
+#   }
+#
+#   lifecycle {
+#     ignore_changes = all
+#   }
+# }
 
 # -----------------------------------------------------------------------------
 # API GATEWAY
