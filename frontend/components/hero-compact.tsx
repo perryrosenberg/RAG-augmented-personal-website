@@ -1,6 +1,6 @@
 "use client";
 
-import { Github, Linkedin, Mail, FileText, Sparkles } from "lucide-react";
+import { Github, Linkedin, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 export function HeroCompact() {
@@ -43,13 +43,6 @@ export function HeroCompact() {
           >
             <Github className="w-3 h-3" />
             GitHub
-          </Link>
-          <Link
-            href="mailto:perry_rosenberg@alumni.brown.edu"
-            className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-muted-foreground hover:border-primary hover:text-primary transition-colors rounded-md font-mono text-sm"
-          >
-            <Mail className="w-3 h-3" />
-            Email
           </Link>
         </div>
       </div>

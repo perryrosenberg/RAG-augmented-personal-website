@@ -246,22 +246,33 @@ if [ "$SKIP_FRONTEND" = false ]; then
         
         # Build for production
         echo "  Building Next.js application..."
-        npm run build
-        
-        if [ $? -eq 0 ] && [ -n "$WEBSITE_BUCKET" ]; then
-            # For static export, sync the out directory
-            OUT_DIR="out"
-            if [ ! -d "$OUT_DIR" ]; then
-                OUT_DIR=".next"
-            fi
-            
-            echo "  Syncing to S3: $WEBSITE_BUCKET..."
-            aws s3 sync "$OUT_DIR" "s3://$WEBSITE_BUCKET" --delete
-            
-            echo "  Frontend deployment complete"
-        else
-            echo "  WARNING: Build failed or website bucket not configured"
+        if ! npm run build; then
+            echo "  ERROR: Frontend build failed!"
+            exit 1
         fi
+
+        # Verify website bucket is configured
+        if [ -z "$WEBSITE_BUCKET" ]; then
+            echo "  ERROR: Website bucket not configured (Terraform output missing)"
+            echo "  Run: terraform output website_bucket_name"
+            exit 1
+        fi
+
+        # For static export, sync the out directory
+        OUT_DIR="out"
+        if [ ! -d "$OUT_DIR" ]; then
+            echo "  ERROR: Expected 'out' directory not found after build"
+            echo "  Check next.config.mjs has output: 'export'"
+            exit 1
+        fi
+
+        echo "  Syncing to S3: $WEBSITE_BUCKET..."
+        if ! aws s3 sync "$OUT_DIR" "s3://$WEBSITE_BUCKET" --delete; then
+            echo "  ERROR: Failed to sync frontend to S3"
+            exit 1
+        fi
+
+        echo "  Frontend deployment complete"
     else
         echo "  WARNING: Frontend directory not found"
     fi

@@ -1,6 +1,6 @@
 "use client";
 
-import { Github, Linkedin, Mail, FileText, ArrowDown, Sparkles } from "lucide-react";
+import { Github, Linkedin, Mail, ArrowDown, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 export function HeroSection() {

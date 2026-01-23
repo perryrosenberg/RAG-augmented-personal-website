@@ -11,9 +11,9 @@ import { queryAssistant } from "@/lib/assistant-api";
 import type { AssistantMessage, AssistantSource } from "@/lib/assistant-types";
 
 const suggestedQuestions = [
-  "How would you design an ETL pipeline?",
-  "Explain event sourcing tradeoffs.",
-  "Distributed systems best practices?",
+  "How might Perry design an ETL pipeline?",
+  "Explain event sourcing tradeoffs perry would be familiar with.",
+  "What are some distributed systems best practices Perry would be experienced with?",
 ];
 
 export function StickyAssistant() {
