@@ -42,7 +42,7 @@ export function Footer() {
       <div className="text-center space-y-1">
         <div className="inline-flex items-center gap-2 text-muted-foreground font-mono text-[10px]">
           <Sparkles className="w-3 h-3 text-primary" />
-          <span>This website was built using agentic AI workflows to test and showcase the tools: v0.dev, junie, claude code</span>
+          <span>This website was built using agentic AI workflows to test and showcase the tools (v0.dev, junie, claude code) and is Open Source for transparency</span>
         </div>
         <p className="text-muted-foreground font-mono text-[10px]">
           {new Date().getFullYear()} Perry Rosenberg

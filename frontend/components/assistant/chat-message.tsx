@@ -7,8 +7,8 @@ import { cn } from "@/lib/utils";
 import type { AssistantMessage } from "@/lib/assistant-types";
 
 interface ChatMessageProps {
-  message: AssistantMessage;
-  compact?: boolean;
+  readonly message: AssistantMessage;
+  readonly compact?: boolean;
 }
 
 function formatTime(date: Date): string {
@@ -41,10 +41,10 @@ export const ChatMessage = memo(function ChatMessage({ message, compact }: ChatM
       </div>
       <div className="flex-1 min-w-0">
         <div className={cn("flex items-center gap-2", compact ? "mb-0.5" : "mb-1")}>
-          <span className={cn("font-medium text-foreground", compact ? "text-xs" : "text-sm")}>
+          <span className={cn("font-medium text-foreground", compact ? "text-sm" : "text-base")}>
             {isUser ? "You" : "AI Assistant"}
           </span>
-          <span className={cn("text-muted-foreground", compact ? "text-[10px]" : "text-xs")}>{formatTime(message.timestamp)}</span>
+          <span className={cn("text-muted-foreground", compact ? "text-[10px]" : "text-sm")}>{formatTime(message.timestamp)}</span>
         </div>
         <div
           className={cn(
@@ -54,12 +54,12 @@ export const ChatMessage = memo(function ChatMessage({ message, compact }: ChatM
             "prose-headings:text-foreground prose-headings:font-semibold prose-headings:mt-4 prose-headings:mb-2",
             "prose-h2:text-lg prose-h3:text-base",
             "prose-strong:text-foreground prose-strong:font-semibold",
-            "prose-code:text-primary prose-code:bg-secondary prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:before:content-none prose-code:after:content-none",
+            "prose-code:text-primary prose-code:bg-secondary prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-base prose-code:before:content-none prose-code:after:content-none",
             "prose-pre:bg-secondary prose-pre:border prose-pre:border-border prose-pre:rounded-lg prose-pre:my-3",
             "prose-ul:my-2 prose-ul:list-disc prose-ul:pl-4",
             "prose-ol:my-2 prose-ol:list-decimal prose-ol:pl-4",
             "prose-li:text-foreground prose-li:my-0.5",
-            "prose-table:my-3 prose-table:text-sm",
+            "prose-table:my-3 prose-table:text-base",
             "prose-th:bg-secondary prose-th:px-3 prose-th:py-2 prose-th:text-left prose-th:font-medium prose-th:border prose-th:border-border",
             "prose-td:px-3 prose-td:py-2 prose-td:border prose-td:border-border"
           )}

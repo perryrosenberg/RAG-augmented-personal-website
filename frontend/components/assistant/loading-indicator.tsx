@@ -10,13 +10,13 @@ export function LoadingIndicator() {
       </div>
       <div className="flex-1">
         <div className="flex items-center gap-2 mb-2">
-          <span className="font-medium text-sm text-foreground">AI Architect Assistant</span>
+          <span className="font-medium text-base text-foreground">AI Architect Assistant</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]" />
           <span className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]" />
           <span className="w-2 h-2 bg-primary rounded-full animate-bounce" />
-          <span className="ml-2 text-sm text-muted-foreground">Searching knowledge base...</span>
+          <span className="ml-2 text-base text-muted-foreground">Searching knowledge base...</span>
         </div>
       </div>
     </div>

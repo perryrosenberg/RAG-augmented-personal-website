@@ -33,9 +33,11 @@ A cloud-native personal portfolio website with RAG (Retrieval-Augmented Generati
 - **Build Tool:** Gradle 8.5
 - **Location:** `/backend`
 - **Package Structure:**
-  - `com.ragwebsite.handlers` - Lambda request handlers
-  - `com.ragwebsite.models` - Request/response DTOs
-  - `com.ragwebsite.services` - Business logic (RAG orchestration)
+  - `com.perryrosenberg.portfolio.handler` - Lambda request handlers
+  - `com.perryrosenberg.portfolio.dto.request` - Request DTOs
+  - `com.perryrosenberg.portfolio.dto.response` - Response DTOs
+  - `com.perryrosenberg.portfolio.service` - Business logic (RAG orchestration)
+  - `com.perryrosenberg.portfolio.constants` - Configuration constants
 
 ### Infrastructure
 - **IaC:** Terraform
@@ -119,7 +121,7 @@ A cloud-native personal portfolio website with RAG (Retrieval-Augmented Generati
 ## Key Code Components
 
 ### Lambda Handler
-**File:** `backend/src/main/java/com/ragwebsite/handlers/QueryHandler.java`
+**File:** `backend/src/main/java/com/perryrosenberg/portfolio/handler/QueryHandler.java`
 - Implements `RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent>`
 - Handles CORS preflight (OPTIONS)
 - Health check endpoint (GET /api/health)
@@ -127,19 +129,26 @@ A cloud-native personal portfolio website with RAG (Retrieval-Augmented Generati
 - Returns JSON responses with proper CORS headers
 
 ### RAG Service
-**File:** `backend/src/main/java/com/ragwebsite/services/RagOrchestrationService.java`
-- Retrieves documents from S3 knowledge bucket (`documents/` prefix)
-- Performs keyword-based relevance matching
+**File:** `backend/src/main/java/com/perryrosenberg/portfolio/service/RagOrchestrationService.java`
+- Retrieves documents from Bedrock Knowledge Base using vector search
+- Performs semantic similarity matching with Titan embeddings
 - Builds context from relevant documents
 - Calls Bedrock Claude for AI-generated responses
 - Includes fallback responses for error cases
-- Uses environment variable: `KNOWLEDGE_BUCKET`
+- Uses environment variable: `KNOWLEDGE_BASE_ID`
 
 ### Data Models
-**Files:** `backend/src/main/java/com/ragwebsite/models/`
-- `QueryRequest` - User question + conversationId + optional context
-- `QueryResponse` - AI answer + sources + conversationId
-- `QueryResponse.Source` - Document metadata (id, title, type, confidence, excerpt)
+**Files:** `backend/src/main/java/com/perryrosenberg/portfolio/dto/`
+- `request.QueryRequest` - User question + conversationId + optional context
+- `response.QueryResponse` - AI answer + sources + conversationId
+- `response.QueryResponse.Source` - Document metadata (id, title, type, confidence, excerpt)
+
+### Constants
+**File:** `backend/src/main/java/com/perryrosenberg/portfolio/constants/BedrockConstants.java`
+- Model IDs for Bedrock services
+- API configuration constants
+- System prompts and error messages
+- Document type classifications
 
 ---
 
@@ -234,7 +243,7 @@ const Component: React.FC<Props> = ({ message, onAction }) => {
 ## Current Issue Being Fixed
 
 ### ClassNotFoundException Problem
-**Error:** Lambda couldn't find `com.ragwebsite.handlers.QueryHandler`
+**Error:** Lambda couldn't find `com.perryrosenberg.portfolio.handler.QueryHandler`
 
 **Root Cause:** Terraform was double-zipping the JAR file:
 1. Gradle creates fat JAR: `query-handler.jar`

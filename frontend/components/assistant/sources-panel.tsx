@@ -1,15 +1,13 @@
 "use client";
 
-import React from "react"
-
 import { useState } from "react";
 import { ChevronDown, ChevronRight, FileText, FileCode, Briefcase, BookOpen, Layers } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { AssistantSource } from "@/lib/assistant-types";
 
 interface SourcesPanelProps {
-  sources: AssistantSource[];
-  compact?: boolean;
+  readonly sources: AssistantSource[];
+  readonly compact?: boolean;
 }
 
 const typeIcons: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -45,10 +43,10 @@ function SourceItem({ source }: { source: AssistantSource }) {
           <Icon className="w-4 h-4 text-primary" />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="font-medium text-sm text-foreground truncate">{source.title}</div>
+          <div className="font-medium text-base text-foreground truncate">{source.title}</div>
           <div className="flex items-center gap-2 mt-1">
-            <span className="text-xs text-muted-foreground">{source.type}</span>
-            <span className="text-xs text-muted-foreground">|</span>
+            <span className="text-sm text-muted-foreground">{source.type}</span>
+            <span className="text-sm text-muted-foreground">|</span>
             <div className="flex items-center gap-1.5">
               <div className="w-16 h-1.5 bg-secondary rounded-full overflow-hidden">
                 <div
@@ -63,14 +61,14 @@ function SourceItem({ source }: { source: AssistantSource }) {
                   style={{ width: `${confidencePercent}%` }}
                 />
               </div>
-              <span className="text-xs font-medium text-muted-foreground">{confidencePercent}%</span>
+              <span className="text-sm font-medium text-muted-foreground">{confidencePercent}%</span>
             </div>
           </div>
         </div>
       </button>
       {isExpanded && (
         <div className="px-3 pb-3 pl-14">
-          <p className="text-sm text-muted-foreground leading-relaxed">{source.excerpt}</p>
+          <p className="text-base text-muted-foreground leading-relaxed">{source.excerpt}</p>
         </div>
       )}
     </div>
@@ -82,8 +80,8 @@ export function SourcesPanel({ sources, compact }: SourcesPanelProps) {
     return (
       <div className={`text-center text-muted-foreground ${compact ? "py-4" : "py-8"}`}>
         <FileText className={`mx-auto mb-2 opacity-50 ${compact ? "w-6 h-6" : "w-8 h-8"}`} />
-        <p className={compact ? "text-xs" : "text-sm"}>No sources to display yet.</p>
-        <p className={`mt-1 ${compact ? "text-[10px]" : "text-xs"}`}>Ask a question to see relevant documents.</p>
+        <p className={compact ? "text-sm" : "text-base"}>No sources to display yet.</p>
+        <p className={`mt-1 ${compact ? "text-[10px]" : "text-sm"}`}>Ask a question to see relevant documents.</p>
       </div>
     );
   }
@@ -92,8 +90,8 @@ export function SourcesPanel({ sources, compact }: SourcesPanelProps) {
     <div className="space-y-2">
       {!compact && (
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-foreground">Sources Used</h3>
-          <span className="text-xs text-muted-foreground">{sources.length} documents</span>
+          <h3 className="text-base font-semibold text-foreground">Sources Used</h3>
+          <span className="text-sm text-muted-foreground">{sources.length} documents</span>
         </div>
       )}
       {sources.map((source) => (

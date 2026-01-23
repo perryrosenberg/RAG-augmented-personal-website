@@ -32,21 +32,13 @@ export function Navigation() {
         }`}
       >
         <nav className="flex items-center justify-between px-6 md:px-12 lg:px-24">
-          <Link
-            href="/"
-            className="text-primary font-bold text-2xl hover:opacity-80 transition-opacity"
-            aria-label="Home"
-          >
-            {"<PR />"}
-          </Link>
-
           {/* Desktop Navigation */}
           <ul className="hidden md:flex items-center gap-8">
             {navItems.map((item, idx) => (
               <li key={item.name}>
                 <Link
                   href={item.href}
-                  className="text-foreground hover:text-primary transition-colors font-mono text-sm"
+                  className="text-foreground hover:text-primary transition-colors font-mono text-base"
                 >
                   <span className="text-primary">0{idx + 1}.</span> {item.name}
                 </Link>
@@ -56,7 +48,7 @@ export function Navigation() {
               <Link
                 href="/resume.pdf"
                 target="_blank"
-                className="px-4 py-2 border border-primary text-primary hover:bg-primary/10 transition-colors rounded-md font-mono text-sm"
+                className="px-4 py-2 border border-primary text-primary hover:bg-primary/10 transition-colors rounded-md font-mono text-base"
               >
                 Resume
               </Link>
@@ -97,7 +89,7 @@ export function Navigation() {
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="text-foreground hover:text-primary transition-colors font-mono text-lg"
                   >
-                    <span className="text-primary block text-center text-sm mb-1">
+                    <span className="text-primary block text-center text-base mb-1">
                       0{idx + 1}.
                     </span>
                     {item.name}
@@ -109,7 +101,7 @@ export function Navigation() {
                   href="/resume.pdf"
                   target="_blank"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="px-8 py-3 border border-primary text-primary hover:bg-primary/10 transition-colors rounded-md font-mono text-sm"
+                  className="px-8 py-3 border border-primary text-primary hover:bg-primary/10 transition-colors rounded-md font-mono text-base"
                 >
                   Resume
                 </Link>

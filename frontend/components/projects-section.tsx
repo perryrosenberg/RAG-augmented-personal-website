@@ -82,13 +82,13 @@ export function ProjectsSection() {
                   <h3 className="text-lg font-bold text-foreground mb-1 group-hover:text-primary transition-colors">
                     {project.title}
                   </h3>
-                  <p className="text-primary font-mono text-sm">
+                  <p className="text-primary font-mono text-base">
                     {project.impact}
                   </p>
                 </div>
               </div>
               
-              <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+              <p className="text-muted-foreground text-base leading-relaxed mb-4">
                 {project.description}
               </p>
 
@@ -96,7 +96,7 @@ export function ProjectsSection() {
                 {project.technologies.map((tech) => (
                   <span
                     key={tech}
-                    className="px-2 py-1 bg-secondary text-muted-foreground rounded text-xs font-mono"
+                    className="px-2 py-1 bg-secondary text-muted-foreground rounded text-sm font-mono"
                   >
                     {tech}
                   </span>

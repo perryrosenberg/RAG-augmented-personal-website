@@ -1,16 +1,14 @@
 "use client";
 
-import React from "react"
-
 import { useState, useRef, useCallback } from "react";
 import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
 interface ChatInputProps {
-  onSubmit: (message: string) => void;
-  isLoading: boolean;
-  compact?: boolean;
+  readonly onSubmit: (message: string) => void;
+  readonly isLoading: boolean;
+  readonly compact?: boolean;
 }
 
 export function ChatInput({ onSubmit, isLoading, compact }: ChatInputProps) {
@@ -56,7 +54,7 @@ export function ChatInput({ onSubmit, isLoading, compact }: ChatInputProps) {
           onKeyDown={handleKeyDown}
           placeholder={compact ? "Ask a question..." : "Ask about my architecture experience, system design decisions, or scaling challenges..."}
           disabled={isLoading}
-          className={`resize-none bg-secondary border-border focus-visible:ring-primary ${compact ? "min-h-[36px] max-h-[100px] text-xs" : "min-h-[44px] max-h-[200px]"}`}
+          className={`resize-none bg-secondary border-border focus-visible:ring-primary ${compact ? "min-h-[36px] max-h-[100px] text-sm" : "min-h-[44px] max-h-[200px]"}`}
           rows={1}
           aria-label="Message input"
         />
@@ -71,7 +69,7 @@ export function ChatInput({ onSubmit, isLoading, compact }: ChatInputProps) {
         </Button>
       </div>
       {!compact && (
-        <p className="text-xs text-muted-foreground mt-2">
+        <p className="text-sm text-muted-foreground mt-2">
           Press Enter to send, Shift+Enter for new line
         </p>
       )}

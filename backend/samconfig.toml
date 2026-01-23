@@ -1,0 +1,35 @@
+# SAM CLI Configuration File for Local Development
+#
+# This configuration file defines settings for AWS SAM CLI operations.
+# It simplifies local testing and development workflows.
+#
+# Usage:
+#   sam local start-api     # Start local API Gateway
+#   sam local invoke        # Invoke function directly
+#   sam build               # Build the Lambda function
+#   sam deploy --guided     # Deploy to AWS (use Terraform instead)
+
+version = 0.1
+
+[default.global.parameters]
+stack_name = "rag-website-local"
+region = "us-east-1"
+capabilities = "CAPABILITY_IAM"
+disable_rollback = true
+
+[default.build.parameters]
+cached = true
+parallel = true
+
+[default.local_start_api.parameters]
+warm_containers = "EAGER"
+skip_pull_image = false
+docker_network = "sam-local"
+port = 3001
+env_vars = "env.json"
+
+[default.local_invoke.parameters]
+env_vars = "env.json"
+
+[default.validate.parameters]
+lint = true

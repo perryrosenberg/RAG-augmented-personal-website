@@ -1,4 +1,3 @@
-import { Navigation } from "@/components/navigation";
 import { HeroCompact } from "@/components/hero-compact";
 import { AboutCompact } from "@/components/about-compact";
 import { ExperienceSection } from "@/components/experience-section";
@@ -9,7 +8,6 @@ import { Footer } from "@/components/footer";
 export default function Home() {
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
       
       {/* Main layout: 2/3 content + 1/3 sticky assistant */}
       <div className="flex">
@@ -34,7 +32,7 @@ export default function Home() {
           href="#assistant-mobile"
           className="flex items-center gap-2 px-4 py-3 bg-primary text-primary-foreground rounded-full shadow-lg hover:opacity-90 transition-opacity"
         >
-          <span className="text-sm font-medium">AI Assistant</span>
+          <span className="text-base font-medium">AI Assistant</span>
         </a>
       </div>
     </div>

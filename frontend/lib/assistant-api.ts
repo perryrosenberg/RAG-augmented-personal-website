@@ -3,8 +3,30 @@ import type { AssistantQueryRequest, AssistantQueryResponse } from "./assistant-
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://perryrosenberg.com";
 
 /**
- * Sends a query to the RAG assistant API.
- * Falls back to mock if API is unavailable during development.
+ * Sends a query to the RAG assistant backend API.
+ *
+ * This function makes a POST request to the backend Lambda function which:
+ * 1. Retrieves relevant documents from the S3 knowledge base
+ * 2. Builds context from matched documents
+ * 3. Generates an AI response using Amazon Bedrock (Claude)
+ * 4. Returns the answer along with source documents
+ *
+ * @param question - The user's question to send to the assistant
+ * @param conversationId - Unique identifier for the conversation session
+ * @param page - The current page context (default: "home")
+ * @returns Promise resolving to the assistant's response with answer and sources
+ * @throws Error if the API request fails
+ *
+ * @example
+ * ```ts
+ * const response = await queryAssistant(
+ *   "How do you design ETL pipelines?",
+ *   "conv-123",
+ *   "home"
+ * );
+ * console.log(response.answer); // AI-generated response
+ * console.log(response.sources); // Source documents used
+ * ```
  */
 export async function queryAssistant(
   question: string,
@@ -39,7 +61,20 @@ export async function queryAssistant(
 }
 
 /**
- * Health check for the assistant API.
+ * Performs a health check on the assistant API.
+ *
+ * Sends a GET request to the /api/health endpoint to verify the backend
+ * Lambda function is responding correctly.
+ *
+ * @returns Promise resolving to true if the API is healthy, false otherwise
+ *
+ * @example
+ * ```ts
+ * const isHealthy = await checkApiHealth();
+ * if (isHealthy) {
+ *   console.log("API is ready");
+ * }
+ * ```
  */
 export async function checkApiHealth(): Promise<boolean> {
   try {

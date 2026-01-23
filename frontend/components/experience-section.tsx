@@ -22,7 +22,7 @@ const experiences = [
   {
     company: "Skubana",
     title: "Senior Software Engineer",
-    url: "https://extensiv.com",
+    url: "https://www.linkedin.com/company/skubana/",
     range: "October 2017 — October 2021",
     duties: [
       "Led development of shipping software and cloud architecture during scaling and acquisition-seeking stage",
@@ -35,7 +35,7 @@ const experiences = [
   {
     company: "Tremor Video",
     title: "Software Engineer",
-    url: "https://tremorvideo.com",
+    url: "https://www.linkedin.com/company/tremor-video/",
     range: "August 2016 — October 2017",
     duties: [
       "Engineered and deployed distributed production systems integrating AI/ML model for real-time filtering of 150,000+ JSON queries per second",
@@ -65,7 +65,7 @@ export function ExperienceSection() {
       <div>
         <div className="flex items-center gap-3 mb-6">
           <h2 className="text-lg font-bold text-foreground whitespace-nowrap">
-            <span className="text-primary font-mono text-sm mr-1">02.</span>
+            <span className="text-primary font-mono text-base mr-1">02.</span>
             Experience
           </h2>
           <div className="h-px bg-border flex-1" />
@@ -78,7 +78,7 @@ export function ExperienceSection() {
               <button
                 key={exp.company}
                 onClick={() => setActiveTab(idx)}
-                className={`px-3 py-2 text-xs font-mono text-left whitespace-nowrap transition-colors ${
+                className={`px-3 py-2 text-sm font-mono text-left whitespace-nowrap transition-colors ${
                   activeTab === idx
                     ? "text-primary bg-primary/10 border-b-2 md:border-b-0 md:border-l-2 border-primary md:-ml-px"
                     : "text-muted-foreground hover:text-primary hover:bg-primary/5"
@@ -103,7 +103,7 @@ export function ExperienceSection() {
                 <ExternalLink className="w-3 h-3" />
               </Link>
             </h3>
-            <p className="text-muted-foreground font-mono text-xs mb-4">
+            <p className="text-muted-foreground font-mono text-sm mb-4">
               {experiences[activeTab].range}
             </p>
 
@@ -111,7 +111,7 @@ export function ExperienceSection() {
               {experiences[activeTab].duties.map((duty, idx) => (
                 <li
                   key={idx}
-                  className="flex gap-2 text-muted-foreground text-sm leading-relaxed"
+                  className="flex gap-2 text-muted-foreground text-base leading-relaxed"
                 >
                   <span className="text-primary mt-1 shrink-0">▹</span>
                   <span>{duty}</span>

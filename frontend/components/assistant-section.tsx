@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { Bot, Sparkles, Database, MessageSquare } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatMessage } from "@/components/assistant/chat-message";
 import { ChatInput } from "@/components/assistant/chat-input";
 import { SourcesPanel } from "@/components/assistant/sources-panel";
@@ -88,7 +87,7 @@ export function AssistantSection() {
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
             <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium text-primary">RAG-Powered Demo</span>
+            <span className="text-base font-medium text-primary">RAG-Powered Demo</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 text-balance">
             <span className="text-primary">04.</span> AI Architect Assistant
@@ -102,15 +101,15 @@ export function AssistantSection() {
 
         {/* Architecture Info */}
         <div className="flex flex-wrap justify-center gap-4 mb-8">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary text-sm">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary text-base">
             <Database className="w-4 h-4 text-primary" />
             <span className="text-muted-foreground">Vector Search</span>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary text-sm">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary text-base">
             <Bot className="w-4 h-4 text-primary" />
             <span className="text-muted-foreground">Amazon Bedrock</span>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary text-sm">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary text-base">
             <MessageSquare className="w-4 h-4 text-primary" />
             <span className="text-muted-foreground">Spring Boot Backend</span>
           </div>
@@ -119,9 +118,9 @@ export function AssistantSection() {
         {/* Chat Interface */}
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Chat Panel */}
-          <div className="lg:col-span-2 bg-card border border-border rounded-xl overflow-hidden flex flex-col h-[600px]">
+          <div className="lg:col-span-2 bg-card border border-border rounded-xl flex flex-col h-[600px]">
             {/* Messages Area */}
-            <ScrollArea className="flex-1" ref={scrollRef}>
+            <div className="flex-1 overflow-y-auto overflow-x-hidden" ref={scrollRef}>
               <div className="p-4 space-y-4">
                 {messages.length === 0 ? (
                   <div className="text-center py-12">
@@ -129,11 +128,11 @@ export function AssistantSection() {
                     <h3 className="text-lg font-medium text-foreground mb-2">
                       Start a conversation
                     </h3>
-                    <p className="text-sm text-muted-foreground mb-6">
+                    <p className="text-base text-muted-foreground mb-6">
                       Ask me about architecture, system design, or scaling challenges.
                     </p>
                     <div className="space-y-2">
-                      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-3">
+                      <p className="text-sm text-muted-foreground uppercase tracking-wide mb-3">
                         Suggested questions
                       </p>
                       {suggestedQuestions.map((question) => (
@@ -142,7 +141,7 @@ export function AssistantSection() {
                           type="button"
                           onClick={() => handleSuggestedQuestion(question)}
                           disabled={isLoading}
-                          className="block w-full text-left px-4 py-3 rounded-lg bg-secondary hover:bg-secondary/80 text-sm text-foreground transition-colors disabled:opacity-50"
+                          className="block w-full text-left px-4 py-3 rounded-lg bg-secondary hover:bg-secondary/80 text-base text-foreground transition-colors disabled:opacity-50"
                         >
                           {question}
                         </button>
@@ -158,24 +157,25 @@ export function AssistantSection() {
                   </>
                 )}
               </div>
-            </ScrollArea>
+            </div>
 
             {/* Input Area */}
-            <ChatInput onSubmit={handleSubmit} isLoading={isLoading} />
+            <div className="border-t border-border">
+              <ChatInput onSubmit={handleSubmit} isLoading={isLoading} />
+            </div>
           </div>
 
           {/* Sources Panel */}
-          <div className="bg-card border border-border rounded-xl p-4 h-[600px] overflow-hidden flex flex-col">
-            <ScrollArea className="flex-1">
+          <div className="bg-card border border-border rounded-xl h-[600px] flex flex-col">
+            <div className="flex-1 overflow-y-auto overflow-x-hidden p-4">
               <SourcesPanel sources={currentSources} />
-            </ScrollArea>
+            </div>
           </div>
         </div>
 
         {/* Technical Note */}
-        <p className="text-center text-xs text-muted-foreground mt-6">
-          Currently using mocked responses. Production version will connect to Java/Spring Boot
-          backend with Amazon Bedrock for LLM inference and vector search for document retrieval.
+        <p className="text-center text-sm text-muted-foreground mt-6">
+          Powered by AWS Lambda with Amazon Bedrock (Claude 3 Haiku) for LLM inference and S3 Vectors for semantic document retrieval.
         </p>
       </div>
     </section>
