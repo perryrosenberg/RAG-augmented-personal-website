@@ -9,7 +9,7 @@
 
 > A cloud-native personal portfolio website with production-grade RAG (Retrieval-Augmented Generation) capabilities, optimized for AWS Free Tier deployment.
 
-**Live Demo:** [perryrosenberg.com](https://perryrosenberg.com)
+**Live At:** [perryrosenberg.com](https://perryrosenberg.com)
 
 ---
 
