@@ -9,7 +9,7 @@
 
 > A cloud-native personal portfolio website with production-grade RAG (Retrieval-Augmented Generation) capabilities, optimized for AWS Free Tier deployment.
 
-**Live Demo:** [perryrosenberg.com](https://perryrosenberg.com) *(coming soon)*
+**Live Demo:** [perryrosenberg.com](https://perryrosenberg.com)
 
 ---
 
@@ -79,17 +79,15 @@ This project demonstrates enterprise-grade software engineering practices in a *
 
 ### 🧪 Comprehensive Testing
 
-- **Java Tests**: 70+ JUnit 5 tests with Mockito and AssertJ
+- **Java Tests**: JUnit 5 tests with Mockito and AssertJ
   - Handler tests (API Gateway integration, CORS, routing)
   - Service tests (RAG orchestration, Bedrock integration)
   - DTO tests (JSON serialization, round-trip integrity)
 
-- **TypeScript Tests**: 200+ Jest tests with React Testing Library
+- **TypeScript Tests**: Jest tests with React Testing Library
   - Component tests (rendering, user interactions, accessibility)
   - API tests (request/response handling, error cases)
   - Edge cases (special characters, long content, empty states)
-
-- **Coverage Goals**: 80% backend, 70% frontend
 
 ### 🚀 Developer Experience
 
@@ -438,13 +436,6 @@ For detailed local development instructions, see [LOCAL_DEVELOPMENT.md](LOCAL_DE
 ./test.sh --frontend
 ```
 
-### Test Coverage
-
-| Component | Tests | Coverage Target |
-|-----------|-------|-----------------|
-| **Backend** | 70+ JUnit tests | 80% line coverage |
-| **Frontend** | 200+ Jest tests | 70% line coverage |
-
 **Backend Test Suites:**
 - `QueryHandlerTest` - API Gateway integration, CORS, routing
 - `RagOrchestrationServiceTest` - RAG logic, Bedrock integration
@@ -625,10 +616,6 @@ aws cloudfront create-invalidation --distribution-id $(terraform output -raw clo
 
 ---
 
-## 🤝 Contributing
-
-Contributions are welcome! This project serves as a portfolio piece and educational resource.
-
 ### Development Workflow
 
 1. **Fork the repository**
@@ -658,36 +645,20 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Perry Rosenberg**
 
-- Portfolio: [perryrosenberg.com](https://perryrosenberg.com) *(coming soon)*
-- GitHub: [@yourusername](https://github.com/yourusername)
-- LinkedIn: [Your LinkedIn](https://linkedin.com/in/yourprofile)
-- Email: your.email@example.com
+- Portfolio: [perryrosenberg.com](https://perryrosenberg.com)
+- GitHub: [@perryrosenberg](https://github.com/perryrosenberg)
+- LinkedIn: [Your LinkedIn](https://www.linkedin.com/in/perry-rosenberg/)
 
 ---
 
 ## 🙏 Acknowledgments
 
+- **Claude Code/Junie** - Heavily utilized agents for code
 - **Next.js Team** - Amazing React framework
 - **AWS Bedrock** - Managed AI infrastructure
 - **Shadcn** - Beautiful UI components
 - **Terraform** - Infrastructure as Code
 - **v0.app** - Initial frontend design
-
----
-
-## 📈 Project Status
-
-**Current Version:** 2.0.0
-**Status:** Production-Ready
-**Last Updated:** January 2026
-
-**Roadmap:**
-- [ ] Add authentication layer
-- [ ] Implement rate limiting
-- [ ] Set up CI/CD pipeline (GitHub Actions)
-- [ ] Add cost monitoring alerts
-- [ ] Support multiple knowledge bases
-- [ ] Add conversation export feature
 
 ---
 

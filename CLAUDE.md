@@ -395,21 +395,6 @@ terraform output
 
 ---
 
-## Next Steps (Roadmap)
-
-1. ✅ Implement Lambda handlers (DONE)
-2. ✅ Create RAG orchestration service (DONE)
-3. ⏳ Fix Windows deployment compatibility (IN PROGRESS)
-4. ⏳ Test end-to-end Lambda deployment (IN PROGRESS)
-5. ⬜ Replace keyword matching with proper embeddings + vector search
-6. ⬜ Connect frontend to real backend (remove mock data)
-7. ⬜ Add authentication layer
-8. ⬜ Implement rate limiting
-9. ⬜ Set up cost monitoring
-10. ⬜ Create CI/CD pipeline
-
----
-
 **Last Updated:** 2026-01-18
 **Document Purpose:** AI Assistant context and quick reference
 **Maintained By:** Claude Code
